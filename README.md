@@ -10,7 +10,13 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Create a .env file at the root of the project with your mapbox api key
+
+   ```bash
+   EXPO_PUBLIC_MAPBOX_KEY=<YOUR MAPBOX KEY>
+   ```
+
+3. Start the app
 
    ```bash
     npx expo start
