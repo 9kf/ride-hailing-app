@@ -1,3 +1,5 @@
+import { showToast } from "@/store/slices/toastSlice";
+import { store } from "@/store/store";
 import { TRideRequest } from "@/types";
 import { getRandomCoordinates } from "@/utils";
 import { getCurrentLocation } from "@/utils";
@@ -57,6 +59,12 @@ export const getRideRequests = async (): Promise<
 
     return rideRequests;
   } catch (error) {
-    console.log(error);
+    store.dispatch(
+      showToast({
+        type: "error",
+        message:
+          "There was a problem fetching the ride requests. Please try again.",
+      })
+    );
   }
 };

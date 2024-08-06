@@ -1,6 +1,8 @@
 import * as Location from "expo-location";
 
 import { TLocationCoordinates } from "@/types";
+import { store } from "@/store/store";
+import { showToast } from "@/store/slices/toastSlice";
 
 /**
  * function that returns random coordinates that is within 10km radius of the given lat and long.
@@ -66,7 +68,12 @@ export const getCurrentLocation = async () => {
 
     return loc;
   } catch (error) {
-    console.error("Error requesting location permission:", error);
+    store.dispatch(
+      showToast({
+        type: "error",
+        message: "Error requesting location permission",
+      })
+    );
   }
 };
 

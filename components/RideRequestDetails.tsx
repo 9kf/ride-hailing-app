@@ -6,8 +6,8 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { Button } from "./Button";
 import { TRideRequest } from "@/types";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
 import {
   acceptRideRequest,
   declineRideRequest,
@@ -15,6 +15,7 @@ import {
   pickedUpRideRequest,
   startRideRequest,
 } from "@/store/slices/rideRequestSlice";
+import { showToast } from "@/store/slices/toastSlice";
 
 type TRideRequestDetailsProps = {
   rideRequest: TRideRequest;
@@ -25,6 +26,9 @@ type TRideRequestDetailsProps = {
 const RideRequestDetails = forwardRef<BottomSheet, TRideRequestDetailsProps>(
   ({ rideRequest, onClose, onDeclineRequestCallback }, ref) => {
     const dispatch = useDispatch<AppDispatch>();
+    const acceptedRideRequest = useSelector<RootState>(
+      (state) => state.rideRequest.acceptedRideRequest
+    ) as TRideRequest | undefined;
 
     const [pickupAddress, setPickupAddress] = useState("");
     const [destinationAddress, setDestinationAddress] = useState("");
@@ -54,7 +58,13 @@ const RideRequestDetails = forwardRef<BottomSheet, TRideRequestDetailsProps>(
             .join(", ") || ""
         );
       } catch (error) {
-        console.log(error);
+        dispatch(
+          showToast({
+            type: "error",
+            message:
+              "There was a problem retrieving the address of the ride request. Please try again.",
+          })
+        );
       }
     };
 
@@ -90,7 +100,7 @@ const RideRequestDetails = forwardRef<BottomSheet, TRideRequestDetailsProps>(
         snapPoints={["45%"]}
         handleIndicatorStyle={{ display: "none" }}
         onClose={() => onClose?.()}
-        enablePanDownToClose={true}
+        enablePanDownToClose={!!acceptedRideRequest ? false : true}
       >
         <BottomSheetView style={styles.container}>
           <View style={styles.userContainer}>

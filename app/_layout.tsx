@@ -1,8 +1,9 @@
-import { store } from "@/store/store";
 import { Stack } from "expo-router";
 import { SafeAreaView, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider } from "react-redux";
+
+import { store } from "@/store/store";
 
 export default function Layout() {
   return (
