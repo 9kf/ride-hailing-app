@@ -8,7 +8,7 @@ import { TLocationCoordinates } from "@/types";
 export const getRandomCoordinates = (
   latitude: number,
   longitude: number,
-  radiusKm: number = 10,
+  radiusKm: number = 5,
   numPoints: number = 10
 ): TLocationCoordinates[] => {
   const randomCoordinates: TLocationCoordinates[] = [];
@@ -96,7 +96,7 @@ export const haversineDistance = (
 export const isCoordinateWithinDistance = (
   currentCoordinates: TLocationCoordinates,
   comparedCoordinates: TLocationCoordinates,
-  minDistanceKm: number = 3
+  minDistanceKm: number = 2
 ): boolean => {
   return (
     haversineDistance(currentCoordinates, comparedCoordinates) < minDistanceKm
@@ -107,7 +107,7 @@ export const filterCoordinatesWithinDistance = (
   latitude: number,
   longitude: number,
   coordinates: TLocationCoordinates[],
-  minDistanceKm: number = 3
+  minDistanceKm: number = 2
 ): TLocationCoordinates[] => {
   return coordinates.filter(
     (coord) => haversineDistance({ latitude, longitude }, coord) > minDistanceKm

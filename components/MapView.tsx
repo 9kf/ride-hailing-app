@@ -28,7 +28,7 @@ export const MapView = ({
       >
         <Mapbox.Camera
           defaultSettings={{
-            zoomLevel: 10,
+            zoomLevel: 11,
           }}
           {...(currentLocation && {
             centerCoordinate: [

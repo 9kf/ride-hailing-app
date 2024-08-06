@@ -44,7 +44,7 @@ export const getRideRequests = async (): Promise<
         user: {
           id: index,
           name: names[index],
-          email: `${names[index].split(" ").join().toLowerCase()}@email.com`,
+          email: `${names[index].split(" ").join("").toLowerCase()}@email.com`,
         },
         driverId: null,
         pickupLocation: pickupCoordinates,
