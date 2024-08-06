@@ -18,6 +18,9 @@ export default function Home() {
   const rideRequests = useSelector<RootState>((state) =>
     state.rideRequest.rideRequests.filter((rr) => rr.status !== "declined")
   ) as TRideRequest[];
+  const acceptedRideRequest = useSelector<RootState>(
+    (state) => state.rideRequest.acceptedRideRequest
+  ) as TRideRequest | undefined;
 
   const currentLocation = useGetCurrentLocation();
   const bottomSheetRef = useRef<BottomSheet | null>(null);
@@ -29,6 +32,12 @@ export default function Home() {
     dispatch(fetchRideRequests());
   }, [currentLocation?.coords]);
 
+  useEffect(() => {
+    if (!acceptedRideRequest) return;
+
+    setSelectedRideRequest(acceptedRideRequest);
+  }, [acceptedRideRequest]);
+
   const handleRideRequestPressed = (rideRequest: TRideRequest) => {
     bottomSheetRef.current?.expand();
     setSelectedRideRequest(rideRequest);
@@ -36,6 +45,15 @@ export default function Home() {
 
   const handleRideRequestDetailsClosed = () => {
     setSelectedRideRequest(undefined);
+  };
+
+  const handleDeclineRequestCallback = (refetch?: boolean) => {
+    bottomSheetRef.current?.close();
+    setSelectedRideRequest(undefined);
+
+    if (refetch) {
+      dispatch(fetchRideRequests());
+    }
   };
 
   return (
@@ -65,6 +83,7 @@ export default function Home() {
           ref={bottomSheetRef}
           rideRequest={selectedRideRequest}
           onClose={handleRideRequestDetailsClosed}
+          onDeclineRequestCallback={handleDeclineRequestCallback}
         />
       )}
     </>

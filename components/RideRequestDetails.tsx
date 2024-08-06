@@ -6,40 +6,78 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 import { Button } from "./Button";
 import { TRideRequest } from "@/types";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/store";
+import {
+  acceptRideRequest,
+  declineRideRequest,
+  droppedOffRideRequest,
+  pickedUpRideRequest,
+  startRideRequest,
+} from "@/store/slices/rideRequestSlice";
 
 type TRideRequestDetailsProps = {
   rideRequest: TRideRequest;
   onClose?: () => void;
+  onDeclineRequestCallback?: (refetch?: boolean) => void;
 };
 
 const RideRequestDetails = forwardRef<BottomSheet, TRideRequestDetailsProps>(
-  ({ rideRequest, onClose }, ref) => {
+  ({ rideRequest, onClose, onDeclineRequestCallback }, ref) => {
+    const dispatch = useDispatch<AppDispatch>();
+
     const [pickupAddress, setPickupAddress] = useState("");
     const [destinationAddress, setDestinationAddress] = useState("");
 
     const reverseGeocodeAddresses = async () => {
-      const pickupAddressObj = await Location.reverseGeocodeAsync({
-        latitude: rideRequest.pickupLocation.latitude,
-        longitude: rideRequest.pickupLocation.longitude,
-      });
+      try {
+        const pickupAddressObj = await Location.reverseGeocodeAsync({
+          latitude: rideRequest.pickupLocation.latitude,
+          longitude: rideRequest.pickupLocation.longitude,
+        });
 
-      const destinationAddressObj = await Location.reverseGeocodeAsync({
-        latitude: rideRequest.destination.latitude,
-        longitude: rideRequest.destination.longitude,
-      });
+        const destinationAddressObj = await Location.reverseGeocodeAsync({
+          latitude: rideRequest.destination.latitude,
+          longitude: rideRequest.destination.longitude,
+        });
 
-      setPickupAddress(
-        pickupAddressObj[0].formattedAddress
-          ?.split(",")
-          .splice(0, 2)
-          .join(", ") || ""
-      );
-      setDestinationAddress(
-        destinationAddressObj[0].formattedAddress
-          ?.split(",")
-          .splice(0, 2)
-          .join(", ") || ""
-      );
+        setPickupAddress(
+          pickupAddressObj[0].formattedAddress
+            ?.split(",")
+            .splice(0, 2)
+            .join(", ") || ""
+        );
+        setDestinationAddress(
+          destinationAddressObj[0].formattedAddress
+            ?.split(",")
+            .splice(0, 2)
+            .join(", ") || ""
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const handleAcceptRideRequest = () => {
+      dispatch(acceptRideRequest(rideRequest));
+    };
+
+    const handleDeclineRequest = () => {
+      dispatch(declineRideRequest(rideRequest));
+      onDeclineRequestCallback?.(rideRequest.status !== "pending");
+    };
+
+    const handleStartRideRequest = () => {
+      dispatch(startRideRequest());
+    };
+
+    const handlePickedUpRideRequest = () => {
+      dispatch(pickedUpRideRequest());
+    };
+
+    const handleDroppedOffRideRequest = () => {
+      dispatch(droppedOffRideRequest());
+      onDeclineRequestCallback?.(true);
     };
 
     useEffect(() => {
@@ -76,8 +114,45 @@ const RideRequestDetails = forwardRef<BottomSheet, TRideRequestDetailsProps>(
           </View>
 
           <View style={styles.buttonsContainer}>
-            <Button label="Accept" type="success" />
-            <Button label="Decline" type="danger" />
+            {(rideRequest.status === "pending" ||
+              rideRequest.status === "accepted") && (
+              <>
+                {rideRequest.status === "accepted" ? (
+                  <Button
+                    label="Start"
+                    type="success"
+                    onPress={handleStartRideRequest}
+                  />
+                ) : (
+                  <Button
+                    label="Accept"
+                    type="success"
+                    onPress={handleAcceptRideRequest}
+                  />
+                )}
+                <Button
+                  label="Decline"
+                  type="danger"
+                  onPress={handleDeclineRequest}
+                />
+              </>
+            )}
+
+            {rideRequest.status === "started" && (
+              <Button
+                label="Picked up"
+                type="warning"
+                onPress={handlePickedUpRideRequest}
+              />
+            )}
+
+            {rideRequest.status === "picked-up" && (
+              <Button
+                label="Drop off"
+                type="success"
+                onPress={handleDroppedOffRideRequest}
+              />
+            )}
           </View>
         </BottomSheetView>
       </BottomSheet>
